@@ -1,29 +1,32 @@
 package com.APIAutomation.Practice;
 
+import com.APIAutomation.CommonMethods.ReusableMethods;
+import com.APIAutomation.Files.PayLoads;
+import com.APIAutomation.Files.ResponseKey;
+import com.APIAutomation.Files.ResponseValue;
 import io.restassured.RestAssured;
+
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
 
 public class AddPlace {
-    public static void main(String[] args) {
+    public static String add_Place(){
+        System.out.println("****************-Post call start-****************");
         RestAssured.baseURI="https://rahulshettyacademy.com";
-        given().log().all().queryParam("key","qaclick123").
-                queryParam("Content-Type","application/json")
-                .body("{\n" +
-                        "  \"location\": {\n" +
-                        "    \"lat\": -38.383494,\n" +
-                        "    \"lng\": 33.427362\n" +
-                        "  },\n" +
-                        "  \"accuracy\": 50,\n" +
-                        "  \"name\": \"Hello API Testing\",\n" +
-                        "  \"phone_number\": \"(+91)6789345612\",\n" +
-                        "  \"address\": \"16 Feet road, Hanapara\",\n" +
-                        "  \"types\": [\n" +
-                        "    \"shoe park\",\n" +
-                        "    \"shop\"\n" +
-                        "  ],\n" +
-                        "  \"website\": \"http://google.com\",\n" +
-                        "  \"language\": \"Bengali-IN\"\n" +
-                        "}\n").when().post("/maps/api/place/add/json")
-                .then().log().all().assertThat().statusCode(200);
+
+      String response=  given().log().all()
+              .queryParam("key","qaclick123")
+              .queryParam("Content-Type","application/json")
+              .body(PayLoads.addPlace()).when().post("/maps/api/place/add/json")
+              .then().log().all().assertThat().statusCode(200)
+              .body("scope", equalTo("APP")).extract().response().asString();
+
+        System.out.println("Add place response is:: "+response);
+        ReusableMethods reusableMethods= new ReusableMethods();
+        String value=reusableMethods.getResponse(response, String.valueOf(ResponseKey.place_id));
+        System.out.println("Add place Place id value is:: "+value);
+        System.out.println("****************-Post call end-****************");
+        return value;
+
     }
 }
